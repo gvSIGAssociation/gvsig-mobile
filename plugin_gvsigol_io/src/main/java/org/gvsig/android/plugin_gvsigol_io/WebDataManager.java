@@ -15,7 +15,7 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-package org.gvsig.android.plugin_gvsigol_io.importer;
+package org.gvsig.android.plugin_gvsigol_io;
 
 import android.content.Context;
 import android.content.res.AssetManager;
@@ -114,7 +114,6 @@ public enum WebDataManager {
             File downloadeddataFile = new File(sdcardDir, outputFileName);
             if (downloadeddataFile.exists()) {
                 String wontOverwrite = context.getString(R.string.the_file_exists_wont_overwrite) + " " + downloadeddataFile.getName();
-                // FIXME: log error?
                 throw new DownloadError(wontOverwrite);
             }
             String loginUrl = addActionPath(server, LOGIN_URL);
@@ -123,20 +122,17 @@ public enum WebDataManager {
 
             long fileLength = downloadeddataFile.length();
             if (fileLength == 0) {
-                // FIXME: log error?
                 throw new DownloadError("Error in downloading file.");
             }
 
             return downloadeddataFile.getCanonicalPath();
-        } catch (Exception e) {
+        } catch (DownloadError e) {
+            GPLog.error(this, null, e);
+            throw e;
+        }
+        catch (Exception e) {
             GPLog.error(this, null, e);
             throw new DownloadError(e);
-            /*
-            String message = e.getMessage();
-            if (message.equals(CompressionUtilities.FILE_EXISTS)) {
-                throw new RuntimeException(context.getString(R.string.the_file_exists_wont_overwrite) + " " + downloadedProjectFileName);
-            }
-            return e.getLocalizedMessage();*/
         }
     }
 

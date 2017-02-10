@@ -15,7 +15,7 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-package org.gvsig.android.plugin_gvsigol_io.importer;
+package org.gvsig.android.plugin_gvsigol_io;
 
 /**
  * The class holding webdata layer info.

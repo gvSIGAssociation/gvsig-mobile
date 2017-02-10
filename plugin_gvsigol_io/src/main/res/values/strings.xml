@@ -1,3 +1,5 @@
 <resources>
     <string name="app_name">plugin_gvsigol_io</string>
+    <string name="available_only_with_network">This option is only available when a network connection is available</string>
+    <string name="error_set_cloud_settings_gvsigol">User and password must be set on cloud settings to connect to gvSIG Online</string>
 </resources>

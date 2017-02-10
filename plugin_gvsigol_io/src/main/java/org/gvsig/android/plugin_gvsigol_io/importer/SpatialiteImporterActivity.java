@@ -43,23 +43,20 @@ import java.util.List;
 
 import android.support.design.widget.FloatingActionButton;
 
+import org.gvsig.android.plugin_gvsigol_io.WebDataLayer;
+import org.gvsig.android.plugin_gvsigol_io.WebDataManager;
+
 import java.io.File;
 
-import eu.geopaparazzi.core.ui.activities.ImportActivity;
 import eu.geopaparazzi.core.utilities.Constants;
 import eu.geopaparazzi.library.R;
 import eu.geopaparazzi.library.database.GPLog;
-import eu.geopaparazzi.library.network.NetworkUtilities;
 import eu.geopaparazzi.library.util.GPDialogs;
 import eu.geopaparazzi.library.util.LibraryConstants;
 import eu.geopaparazzi.library.util.StringAsyncTask;
 import eu.geopaparazzi.library.util.TextRunnable;
 import eu.geopaparazzi.library.util.TimeUtilities;
 import eu.geopaparazzi.spatialite.database.spatial.SpatialiteSourcesManager;
-
-import static eu.geopaparazzi.library.util.LibraryConstants.PREFS_KEY_PWD;
-import static eu.geopaparazzi.library.util.LibraryConstants.PREFS_KEY_URL;
-import static eu.geopaparazzi.library.util.LibraryConstants.PREFS_KEY_USER;
 
 /**
  * Web projects listing activity.
@@ -163,7 +160,8 @@ public class SpatialiteImporterActivity extends ListActivity {
                                     return ""; //$NON-NLS-1$
                                 } catch (Exception e) {
                                     GPLog.error(this, null, e);
-                                    return ERROR + ":" + e.getLocalizedMessage();
+                                    throw new RuntimeException(e);
+                                    //return ERROR + ":" + e.getLocalizedMessage();
                                 }
                             }
 
@@ -185,6 +183,16 @@ public class SpatialiteImporterActivity extends ListActivity {
                                         }
                                     });
                                 }
+                            }
+
+                            @Override
+                            protected void onCancelled() {
+                                super.onCancelled();
+                            }
+
+                            @Override
+                            protected void onCancelled(String s) {
+                                super.onCancelled(s);
                             }
                         };
 
