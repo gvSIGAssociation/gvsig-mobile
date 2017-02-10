@@ -20,6 +20,20 @@
                 <category android:name="androidsrc.intent.category.MENU_PROVIDER" />
             </intent-filter>
         </service>
+        <activity android:name=".exporter.SpatialiteExporterActivity">
+            <intent-filter>
+                <action android:name="eu.geopaparazzi.core.extension.exporter.spatialite.PICK" />
+                <category android:name="android.intent.category.DEFAULT" />
+                <!-- <category android:name="android.intent.category.LAUNCHER" /> -->
+            </intent-filter>
+        </activity>
+        <service android:name="org.gvsig.android.plugin_gvsigol_io.exporter.MenuProvider"
+            android:exported="false">
+            <intent-filter>
+                <action android:name="eu.geopaparazzi.core.extension.ep.exporter.MENU_PROVIDER" />
+                <category android:name="androidsrc.intent.category.MENU_PROVIDER" />
+            </intent-filter>
+        </service>
     </application>
 
 </manifest>
