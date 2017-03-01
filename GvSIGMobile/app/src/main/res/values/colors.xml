@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <color name="main_background">#FFFFFF</color>
+    <color name="main_decorations">#cf7d3c</color>
+    <color name="main_decorations_dark">#cf7d3c</color>
+    <color name="main_text_color">#00699e</color>
+    <color name="main_text_color_neutral">#00699e</color>
+    <color name="main_selection">#008fd8</color>
+    <color name="main_selection_border">#008fd8</color>
+
+
+
+</resources>

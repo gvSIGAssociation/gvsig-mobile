@@ -1,0 +1,15 @@
+include ':app'
+include ':geopaparazzi_core'
+project(':geopaparazzi_core').projectDir = new File('../../geopaparazzi-git/geopaparazzi_core/')
+include ':geopaparazzilibrary'
+project(':geopaparazzilibrary').projectDir = new File('../../geopaparazzi-git/geopaparazzilibrary/')
+include ':geopaparazzimarkerslib'
+project(':geopaparazzimarkerslib').projectDir = new File('../../geopaparazzi-git/geopaparazzimarkerslib/')
+include ':geopaparazzimapsforge'
+project(':geopaparazzimapsforge').projectDir = new File('../../geopaparazzi-git/geopaparazzimapsforge/')
+include ':geopaparazzispatialitelibrary'
+project(':geopaparazzispatialitelibrary').projectDir = new File('../../geopaparazzi-git/geopaparazzispatialitelibrary/')
+include ':wms_nww'
+project(':wms_nww').projectDir = new File('../../wms_nww/')
+include ':plugin_gvsigol_io'
+project(':plugin_gvsigol_io').projectDir = new File('../plugin_gvsigol_io/')
