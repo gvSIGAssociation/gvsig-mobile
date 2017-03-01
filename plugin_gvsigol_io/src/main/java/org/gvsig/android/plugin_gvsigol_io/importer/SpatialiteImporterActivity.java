@@ -43,13 +43,14 @@ import java.util.List;
 
 import android.support.design.widget.FloatingActionButton;
 
+import org.gvsig.android.plugin_gvsigol_io.R;
 import org.gvsig.android.plugin_gvsigol_io.WebDataLayer;
 import org.gvsig.android.plugin_gvsigol_io.WebDataManager;
 
 import java.io.File;
 
 import eu.geopaparazzi.core.utilities.Constants;
-import eu.geopaparazzi.library.R;
+import eu.geopaparazzi.library.core.maps.SpatialiteMap;
 import eu.geopaparazzi.library.database.GPLog;
 import eu.geopaparazzi.library.util.GPDialogs;
 import eu.geopaparazzi.library.util.LibraryConstants;
@@ -57,6 +58,8 @@ import eu.geopaparazzi.library.util.StringAsyncTask;
 import eu.geopaparazzi.library.util.TextRunnable;
 import eu.geopaparazzi.library.util.TimeUtilities;
 import eu.geopaparazzi.spatialite.database.spatial.SpatialiteSourcesManager;
+import eu.geopaparazzi.spatialite.database.spatial.core.databasehandlers.SpatialiteDatabaseHandler;
+import eu.geopaparazzi.spatialite.database.spatial.core.tables.SpatialVectorTable;
 
 /**
  * Web projects listing activity.
@@ -66,7 +69,8 @@ import eu.geopaparazzi.spatialite.database.spatial.SpatialiteSourcesManager;
 public class SpatialiteImporterActivity extends ListActivity {
     public static final int DOWNLOADDATA_RETURN_CODE = 667;
 
-    private static final String ERROR = "error"; //$NON-NLS-1$
+    protected static final String ASYNC_ERROR = "OK"; //$NON-NLS-1$
+    protected static final String ASYNC_OK = "OK"; //$NON-NLS-1$
 
     private ArrayAdapter<WebDataLayer> arrayAdapter;
     private EditText filterText;
@@ -105,20 +109,20 @@ public class SpatialiteImporterActivity extends ListActivity {
                     for (WebDataLayer wp : projectList) {
                         dataListToLoad.add(wp);
                     }
-                    return ""; //$NON-NLS-1$
+                    return ASYNC_OK; //$NON-NLS-1$
                 } catch (Exception e) {
                     GPLog.error(this, null, e);
-                    return ERROR;
+                    return ASYNC_ERROR;
                 }
             }
 
             protected void onPostExecute(String response) { // on UI thread!
                 GPDialogs.dismissProgressDialog(downloadDataListDialog);
                 SpatialiteImporterActivity context = SpatialiteImporterActivity.this;
-                if (response.equals(ERROR)) {
-                    GPDialogs.warningDialog(context, getString(R.string.error_data_list), null);
-                } else {
+                if (response.equals(ASYNC_OK)) {
                     refreshList();
+                } else {
+                    GPDialogs.warningDialog(context, getString(R.string.error_data_list), null);
                 }
             }
 
@@ -157,11 +161,22 @@ public class SpatialiteImporterActivity extends ListActivity {
                                 try {
                                     String dbFile = WebDataManager.INSTANCE.downloadData(SpatialiteImporterActivity.this, url, user, pwd, json, theTextToRunOn);
                                     SpatialiteSourcesManager.INSTANCE.addSpatialiteMapFromFile(new File(dbFile));
-                                    return ""; //$NON-NLS-1$
+                                    SpatialiteDatabaseHandler handler = SpatialiteSourcesManager.INSTANCE.getExistingDatabaseHandlerByPath(dbFile);
+                                    List<SpatialiteMap> maps = SpatialiteSourcesManager.INSTANCE.getSpatialiteMaps();
+                                    for (SpatialiteMap map: maps) {
+                                        if (dbFile.equals(map.databasePath)) {
+                                            map.isVisible = true;
+                                        }
+                                    }
+                                    /*
+                                    List<SpatialVectorTable> vectors = handler.getSpatialVectorTables(true);
+                                    for (SpatialVectorTable vector: vectors) {
+                                        vector.getStyle().enabled = 1;
+                                    }*/
+                                    return ASYNC_OK; //$NON-NLS-1$
                                 } catch (Exception e) {
                                     GPLog.error(this, null, e);
-                                    throw new RuntimeException(e);
-                                    //return ERROR + ":" + e.getLocalizedMessage();
+                                    return e.getLocalizedMessage();
                                 }
                             }
 
@@ -170,9 +185,7 @@ public class SpatialiteImporterActivity extends ListActivity {
                                 dispose();
                                 SpatialiteImporterActivity context = SpatialiteImporterActivity.this;
                                 String okMsg = getString(R.string.data_successfully_downloaded);
-                                if (response.toLowerCase().startsWith(ERROR)) {
-                                    GPDialogs.warningDialog(context, response, null);
-                                } else {
+                                if (ASYNC_OK.equals(response)) {
                                     GPDialogs.infoDialog(context, okMsg, new Runnable() {
                                         @Override
                                         public void run() {
@@ -182,6 +195,9 @@ public class SpatialiteImporterActivity extends ListActivity {
                                             finish();
                                         }
                                     });
+                                }
+                                else {
+                                    GPDialogs.warningDialog(context, response, null);
                                 }
                             }
 

@@ -28,15 +28,18 @@ import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.TextView;
 
+import org.gvsig.android.plugin_gvsigol_io.R;
+import org.gvsig.android.plugin_gvsigol_io.WebDataManager;
+
 import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 
-import eu.geopaparazzi.library.R;
+import eu.geopaparazzi.library.core.maps.SpatialiteMap;
 import eu.geopaparazzi.library.database.GPLog;
 import eu.geopaparazzi.library.util.GPDialogs;
 import eu.geopaparazzi.library.util.StringAsyncTask;
-import eu.geopaparazzi.library.webproject.WebDataManager;
+import eu.geopaparazzi.spatialite.database.spatial.SpatialiteSourcesManager;
 
 import static eu.geopaparazzi.library.util.LibraryConstants.DATABASE_ID;
 import static eu.geopaparazzi.library.util.LibraryConstants.PREFS_KEY_PWD;
@@ -114,14 +117,21 @@ public class SpatialiteExporterActivity extends ListActivity {
                 TextView descrText = (TextView) rowView.findViewById(R.id.descriptiontext);
                 descrText.setText(dataListToLoad.get(position).getParentFile().getAbsolutePath());
 
-                Button uploadButton = (Button) rowView.findViewById(R.id.uploadButton);
+                Button uploadButton = (Button) rowView.findViewById(R.id.uploadFinishButton);
                 uploadButton.setOnClickListener(new View.OnClickListener() {
                     @Override
                     public void onClick(View v) {
-                        upload(position);
+                        upload(position, true);
                     }
                 });
 
+                uploadButton = (Button) rowView.findViewById(R.id.uploadContinueButton);
+                uploadButton.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
+                        upload(position, false);
+                    }
+                });
                 return rowView;
             }
         };
@@ -129,11 +139,25 @@ public class SpatialiteExporterActivity extends ListActivity {
         setListAdapter(arrayAdapter);
     }
 
-    private void upload(final int position) {
+    private void upload(final int position, final boolean finish) {
         uploadTask = new StringAsyncTask(this) {
             protected String doBackgroundWork() {
                 try {
-                    String result = WebDataManager.INSTANCE.uploadData(SpatialiteExporterActivity.this, dataListToLoad.get(position), url, user, pwd);
+                    String result;
+                    File db = dataListToLoad.get(position);
+                    if (finish) {
+                        result = WebDataManager.INSTANCE.uploadData(SpatialiteExporterActivity.this, db, url, user, pwd);
+                        dataListToLoad.get(position).delete();
+                        List<SpatialiteMap> maps = SpatialiteSourcesManager.INSTANCE.getSpatialiteMaps();
+                        for (SpatialiteMap map: maps) {
+                            if (map.databasePath.equals(db.getPath())) {
+                                SpatialiteSourcesManager.INSTANCE.removeSpatialiteMap(map);
+                            }
+                        }
+                    }
+                    else {
+                        result = WebDataManager.INSTANCE.uploadData(SpatialiteExporterActivity.this, db, url, user, pwd, WebDataManager.UPLOAD_AND_CONTINUE_DATA);
+                    }
                     return result;
                 } catch (Exception e) {
                     return "ERROR: " + e.getLocalizedMessage();
@@ -150,10 +174,9 @@ public class SpatialiteExporterActivity extends ListActivity {
                 });
             }
         };
-        uploadTask.setProgressDialog(null, "Uploading data to the cloud...", false, null);
+        String progressMessage = getResources().getString(R.string.uploading_data_to_cloud);
+        uploadTask.setProgressDialog(null, progressMessage, false, null);
         uploadTask.execute();
-
-
     }
 
     @Override

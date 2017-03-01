@@ -13,7 +13,7 @@
                 <!-- <category android:name="android.intent.category.LAUNCHER" /> -->
             </intent-filter>
         </activity>
-        <service android:name="org.gvsig.android.plugin_gvsigol_io.importer.MenuProvider"
+        <service android:name="org.gvsig.android.plugin_gvsigol_io.importer.SpatialiteImporterMenuProvider"
             android:exported="false">
             <intent-filter>
                 <action android:name="eu.geopaparazzi.core.extension.ep.importer.MENU_PROVIDER" />
@@ -27,7 +27,7 @@
                 <!-- <category android:name="android.intent.category.LAUNCHER" /> -->
             </intent-filter>
         </activity>
-        <service android:name="org.gvsig.android.plugin_gvsigol_io.exporter.MenuProvider"
+        <service android:name="org.gvsig.android.plugin_gvsigol_io.exporter.SpatialiteExporterMenuProvider"
             android:exported="false">
             <intent-filter>
                 <action android:name="eu.geopaparazzi.core.extension.ep.exporter.MENU_PROVIDER" />

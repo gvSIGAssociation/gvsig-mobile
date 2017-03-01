@@ -61,7 +61,13 @@ public enum WebDataManager {
 
     public static String UPLOAD_DATA = "sync/upload/";
 
+    /**
+     * Relative URL endpoint to upload data and continue edition, maintaining the server lock on the layers
+     */
+    public static String UPLOAD_AND_CONTINUE_DATA = "sync/commit/";
+
     public static String LOGIN_URL = "auth/login_user/";
+
 
     /**
      * Uploads a project folder as zip to the given server via POST.
@@ -74,10 +80,29 @@ public enum WebDataManager {
      * @return the return message.
      */
     public String uploadData(Context context, File fileToUpload, String server, String user, String passwd) {
-        try {
+        return uploadData(context, fileToUpload, server, user, passwd, UPLOAD_DATA);
+    }
 
+    /**
+     * Uploads a project folder as zip to the given server via POST.
+     *
+     * @param context the {@link Context} to use.
+     * @param fileToUpload  the file to upload.
+     * @param server  the server to which to upload.
+     * @param user    the username for authentication.
+     * @param passwd  the password for authentication.
+     * @param action  {@link #UPLOAD_DATA} or {@link #UPLOAD_AND_CONTINUE_DATA}
+     * @return the return message.
+     */
+    public String uploadData(Context context, File fileToUpload, String server, String user, String passwd, String action) {
+        try {
             String loginUrl = addActionPath(server, LOGIN_URL);
-            server = addActionPath(server, UPLOAD_DATA);
+            if (UPLOAD_AND_CONTINUE_DATA.equals(action)) {
+                server = addActionPath(server, UPLOAD_AND_CONTINUE_DATA);
+            }
+            else {
+                server = addActionPath(server, UPLOAD_DATA);
+            }
             String result = NetworkUtilities.sendFilePost(context, server, fileToUpload, user, passwd, loginUrl);
             if (GPLog.LOG) {
                 GPLog.addLogEntry(this, result);
