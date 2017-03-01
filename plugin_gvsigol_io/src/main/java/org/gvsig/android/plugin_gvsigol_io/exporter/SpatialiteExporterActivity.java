@@ -30,6 +30,7 @@ import android.widget.TextView;
 
 import org.gvsig.android.plugin_gvsigol_io.R;
 import org.gvsig.android.plugin_gvsigol_io.WebDataManager;
+import org.gvsig.android.plugin_gvsigol_io.exceptions.ServerError;
 
 import java.io.File;
 import java.util.ArrayList;
@@ -54,7 +55,8 @@ import static eu.geopaparazzi.library.util.LibraryConstants.PREFS_KEY_USER;
 public class SpatialiteExporterActivity extends ListActivity {
     public static final int DOWNLOADDATA_RETURN_CODE = 667;
 
-    private static final String ERROR = "error"; //$NON-NLS-1$
+    protected static final String ASYNC_ERROR = "OK"; //$NON-NLS-1$
+    protected static final String ASYNC_OK = "OK"; //$NON-NLS-1$
 
     private List<File> dataListToLoad = new ArrayList<>();
 
@@ -140,6 +142,9 @@ public class SpatialiteExporterActivity extends ListActivity {
     }
 
     private void upload(final int position, final boolean finish) {
+        //FIXME: this will probably fail if the phone is rotated while uploading/downloading
+        //See the proper way to do it in:
+        // https://developer.android.com/training/basics/network-ops/connecting.html#config-changes
         uploadTask = new StringAsyncTask(this) {
             protected String doBackgroundWork() {
                 try {
@@ -158,20 +163,29 @@ public class SpatialiteExporterActivity extends ListActivity {
                     else {
                         result = WebDataManager.INSTANCE.uploadData(SpatialiteExporterActivity.this, db, url, user, pwd, WebDataManager.UPLOAD_AND_CONTINUE_DATA);
                     }
-                    return result;
+                    return ASYNC_OK;
+                } catch (ServerError e) {
+                    return e.getMessage();
                 } catch (Exception e) {
-                    return "ERROR: " + e.getLocalizedMessage();
+                    return "ERROR: " + e.getMessage();
                 }
             }
 
             protected void doUiPostWork(String response) {
-                if (response == null) response = "";
-                GPDialogs.infoDialog(SpatialiteExporterActivity.this, response, new Runnable() {
-                    @Override
-                    public void run() {
-                        finish();
-                    }
-                });
+                if (ASYNC_OK.equals(response)) {
+                    String message = getResources().getString(eu.geopaparazzi.library.R.string.file_upload_completed_properly);
+
+                    GPDialogs.infoDialog(SpatialiteExporterActivity.this, message, new Runnable() {
+                        @Override
+                        public void run() {
+                            finish();
+                        }
+                    });
+                }
+                else {
+                    GPDialogs.warningDialog(SpatialiteExporterActivity.this, getErrorMessage(response), null);
+                }
+
             }
         };
         String progressMessage = getResources().getString(R.string.uploading_data_to_cloud);
@@ -183,5 +197,34 @@ public class SpatialiteExporterActivity extends ListActivity {
     protected void onDestroy() {
         if (uploadTask!= null) uploadTask.dispose();
         super.onDestroy();
+    }
+
+    protected String getErrorMessage(String response) {
+        String message;
+        if (response == null) {
+            message = getResources().getString(R.string.error_uploading_the_data);
+        }
+        else if (response.startsWith("ERROR_GOL_")) {
+            response = response.substring(10);
+            if (response.startsWith("ERROR_GOL_201")) {
+                String[] responseParts = response.split(":", 2);
+                String layerName;
+                if (responseParts.length==2) {
+                    layerName = responseParts[1];
+                }
+                else {
+                    layerName = "";
+                }
+                message = String.format(getResources().getString(R.string.layer_is_not_locked), layerName);
+            }
+            else {
+                message = getResources().getString(R.string.error_uploading_the_data);
+            }
+        }
+        else {
+            message = "ERROR: "+response;
+        }
+        return message;
+
     }
 }

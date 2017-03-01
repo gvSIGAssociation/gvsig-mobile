@@ -21,6 +21,9 @@ import android.content.Context;
 import android.content.res.AssetManager;
 
 import org.gvsig.android.plugin_gvsigol_io.exceptions.DownloadError;
+import org.gvsig.android.plugin_gvsigol_io.exceptions.ServerError;
+import org.gvsig.android.plugin_gvsigol_io.exceptions.SyncError;
+import org.gvsig.android.plugin_gvsigol_io.network.NetworkUtilitiesGvsigol;
 import org.json.JSONArray;
 import org.json.JSONObject;
 
@@ -34,7 +37,6 @@ import java.util.List;
 import eu.geopaparazzi.library.R;
 import eu.geopaparazzi.library.core.ResourcesManager;
 import eu.geopaparazzi.library.database.GPLog;
-import eu.geopaparazzi.library.network.NetworkUtilities;
 import eu.geopaparazzi.library.util.CompressionUtilities;
 
 /**
@@ -79,7 +81,7 @@ public enum WebDataManager {
      * @param passwd  the password for authentication.
      * @return the return message.
      */
-    public String uploadData(Context context, File fileToUpload, String server, String user, String passwd) {
+    public String uploadData(Context context, File fileToUpload, String server, String user, String passwd) throws SyncError {
         return uploadData(context, fileToUpload, server, user, passwd, UPLOAD_DATA);
     }
 
@@ -94,7 +96,7 @@ public enum WebDataManager {
      * @param action  {@link #UPLOAD_DATA} or {@link #UPLOAD_AND_CONTINUE_DATA}
      * @return the return message.
      */
-    public String uploadData(Context context, File fileToUpload, String server, String user, String passwd, String action) {
+    public String uploadData(Context context, File fileToUpload, String server, String user, String passwd, String action) throws SyncError {
         try {
             String loginUrl = addActionPath(server, LOGIN_URL);
             if (UPLOAD_AND_CONTINUE_DATA.equals(action)) {
@@ -103,7 +105,44 @@ public enum WebDataManager {
             else {
                 server = addActionPath(server, UPLOAD_DATA);
             }
-            String result = NetworkUtilities.sendFilePost(context, server, fileToUpload, user, passwd, loginUrl);
+            String result = NetworkUtilitiesGvsigol.sendFilePost(context, server, fileToUpload, user, passwd, loginUrl);
+            if (GPLog.LOG) {
+                GPLog.addLogEntry(this, result);
+            }
+            return result;
+        }
+        catch (ServerError e) {
+            GPLog.error(this, null, e);
+            throw e;
+        }
+        catch (Exception e) {
+            GPLog.error(this, null, e);
+            throw new SyncError(e);
+        }
+    }
+
+
+    /**
+     * Uploads a project folder as zip to the given server via POST.
+     *
+     * @param context the {@link Context} to use.
+     * @param fileToUpload  the file to upload.
+     * @param server  the server to which to upload.
+     * @param user    the username for authentication.
+     * @param passwd  the password for authentication.
+     * @param action  {@link #UPLOAD_DATA} or {@link #UPLOAD_AND_CONTINUE_DATA}
+     * @return the return message.
+     */
+    public String uploadDataOld(Context context, File fileToUpload, String server, String user, String passwd, String action) {
+        try {
+            String loginUrl = addActionPath(server, LOGIN_URL);
+            if (UPLOAD_AND_CONTINUE_DATA.equals(action)) {
+                server = addActionPath(server, UPLOAD_AND_CONTINUE_DATA);
+            }
+            else {
+                server = addActionPath(server, UPLOAD_DATA);
+            }
+            String result = NetworkUtilitiesGvsigol.sendFilePost(context, server, fileToUpload, user, passwd, loginUrl);
             if (GPLog.LOG) {
                 GPLog.addLogEntry(this, result);
             }
@@ -143,7 +182,7 @@ public enum WebDataManager {
             }
             String loginUrl = addActionPath(server, LOGIN_URL);
             server = addActionPath(server, DOWNLOAD_DATA);
-            NetworkUtilities.sendPostForFile(context, server, postJson, user, passwd, downloadeddataFile, loginUrl);
+            NetworkUtilitiesGvsigol.sendPostForFile(context, server, postJson, user, passwd, downloadeddataFile, loginUrl);
 
             long fileLength = downloadeddataFile.length();
             if (fileLength == 0) {
@@ -184,7 +223,7 @@ public enum WebDataManager {
             }
             String loginUrl = addActionPath(server, LOGIN_URL);
             server = addActionPath(server, DOWNLOAD_DATA);
-            NetworkUtilities.sendPostForFile(context, server, postJson, user, passwd, downloadeddataFile, loginUrl);
+            NetworkUtilitiesGvsigol.sendPostForFile(context, server, postJson, user, passwd, downloadeddataFile, loginUrl);
 
             long fileLength = downloadeddataFile.length();
             if (fileLength == 0) {
@@ -227,7 +266,7 @@ public enum WebDataManager {
         } else {
             String loginUrl = addActionPath(server, LOGIN_URL);
             server = addActionPath(server, GET_LAYERS_INFO);
-            jsonString = NetworkUtilities.sendGetRequest(server, null, user, passwd, loginUrl);
+            jsonString = NetworkUtilitiesGvsigol.sendGetRequest(server, null, user, passwd, loginUrl);
         }
         List<WebDataLayer> webDataList = json2WebDataList(jsonString);
         return webDataList;

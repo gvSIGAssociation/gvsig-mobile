@@ -2,6 +2,8 @@
     <string name="app_name">plugin_gvsigol_io</string>
     <string name="available_only_with_network">This option is only available when a network connection is available</string>
     <string name="error_set_cloud_settings_gvsigol">User and password must be set on cloud settings to connect to gvSIG Online</string>
-    <string name="gvsig_online">gvSIG Online</string>
-    <string name="uploading_data_to_cloud">"ploading data to the cloud...</string>
+    <string name="gvsig_online" translatable="false">gvSIG Online</string>
+    <string name="uploading_data_to_cloud">Uploading data to the cloud...</string>
+    <string name="error_uploading_the_data">Error uploading the data</string>
+    <string name="layer_is_not_locked">Layer is not locked: %1$s</string>
 </resources>
