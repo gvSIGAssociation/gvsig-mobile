@@ -14,7 +14,7 @@
         android:layout_alignParentTop="true"
         android:layout_margin="10dip"
         android:gravity="center_horizontal"
-        android:text="Databases available for upload"
+        android:text="@string/databases_available_for_upload"
         android:textAppearance="?android:attr/textAppearanceLarge"
         android:textColor="@color/main_text_color"
         android:textStyle="bold" />

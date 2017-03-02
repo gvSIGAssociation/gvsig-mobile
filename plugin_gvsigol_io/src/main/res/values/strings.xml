@@ -6,4 +6,11 @@
     <string name="uploading_data_to_cloud">Uploading data to the cloud...</string>
     <string name="error_uploading_the_data">Error uploading the data</string>
     <string name="layer_is_not_locked">Layer is not locked: %1$s</string>
+    <string name="databases_available_for_upload">Databases available for upload</string>
+    <string name="upload_and_finish">Upload and finish</string>
+    <string name="upload">Upload</string>
+    <string name="title">Title</string>
+    <string name="remote_layers_list">Remote Layers List</string>
+    <string name="geometry_type">Geometry type</string>
+    <string name="srid">SRID</string>
 </resources>

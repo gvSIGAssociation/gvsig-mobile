@@ -6,4 +6,10 @@
     <string name="error_uploading_the_data">Error subiendo los datos</string>
     <string name="uploading_data_to_cloud">Subiendo los datos a la nube...</string>
     <string name="layer_is_not_locked">La capa no está bloqueada: %1$s</string>
+    <string name="databases_available_for_upload">Bases de datos disponibles para subir</string>
+    <string name="geometry_type">Tipo de geometría</string>
+    <string name="remote_layers_list">Lista de Capas Remotas</string>
+    <string name="title">Título</string>
+    <string name="upload">Subir</string>
+    <string name="upload_and_finish">Subir y terminar</string>
 </resources>

@@ -167,6 +167,7 @@ public class SpatialiteExporterActivity extends ListActivity {
                 } catch (ServerError e) {
                     return e.getMessage();
                 } catch (Exception e) {
+                    GPLog.error(this, null, e);
                     return "ERROR: " + e.getMessage();
                 }
             }

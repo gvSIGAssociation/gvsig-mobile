@@ -14,7 +14,7 @@
         android:layout_alignParentTop="true"
         android:layout_margin="10dip"
         android:gravity="center_horizontal"
-        android:text="Remote Layers List"
+        android:text="@string/remote_layers_list"
         android:textAppearance="?android:attr/textAppearanceLarge"
         android:textColor="@color/main_text_color"
         android:textStyle="bold" />
