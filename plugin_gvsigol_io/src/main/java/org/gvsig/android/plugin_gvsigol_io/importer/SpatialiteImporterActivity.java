@@ -155,24 +155,12 @@ public class SpatialiteImporterActivity extends ListActivity {
                     private void downloadData(final String json) {
 
                         stringAsyncTask = new StringAsyncTask(SpatialiteImporterActivity.this) {
+                            protected String dbFile;
                             @Override
                             protected String doBackgroundWork() {
                                 SpatialiteImporterActivity context = SpatialiteImporterActivity.this;
                                 try {
-                                    String dbFile = WebDataManager.INSTANCE.downloadData(SpatialiteImporterActivity.this, url, user, pwd, json, theTextToRunOn);
-                                    SpatialiteSourcesManager.INSTANCE.addSpatialiteMapFromFile(new File(dbFile));
-                                    SpatialiteDatabaseHandler handler = SpatialiteSourcesManager.INSTANCE.getExistingDatabaseHandlerByPath(dbFile);
-                                    List<SpatialiteMap> maps = SpatialiteSourcesManager.INSTANCE.getSpatialiteMaps();
-                                    for (SpatialiteMap map: maps) {
-                                        if (dbFile.equals(map.databasePath)) {
-                                            map.isVisible = true;
-                                        }
-                                    }
-                                    /*
-                                    List<SpatialVectorTable> vectors = handler.getSpatialVectorTables(true);
-                                    for (SpatialVectorTable vector: vectors) {
-                                        vector.getStyle().enabled = 1;
-                                    }*/
+                                    dbFile = WebDataManager.INSTANCE.downloadData(SpatialiteImporterActivity.this, url, user, pwd, json, theTextToRunOn);
                                     return ASYNC_OK; //$NON-NLS-1$
                                 } catch (Exception e) {
                                     GPLog.error(this, null, e);
@@ -184,8 +172,16 @@ public class SpatialiteImporterActivity extends ListActivity {
                             protected void doUiPostWork(String response) {
                                 dispose();
                                 SpatialiteImporterActivity context = SpatialiteImporterActivity.this;
-                                String okMsg = getString(R.string.data_successfully_downloaded);
                                 if (ASYNC_OK.equals(response)) {
+                                    SpatialiteSourcesManager.INSTANCE.addSpatialiteMapFromFile(new File(dbFile));
+                                    String okMsg = getString(R.string.data_successfully_downloaded);
+                                    SpatialiteDatabaseHandler handler = SpatialiteSourcesManager.INSTANCE.getExistingDatabaseHandlerByPath(dbFile);
+                                    List<SpatialiteMap> maps = SpatialiteSourcesManager.INSTANCE.getSpatialiteMaps();
+                                    for (SpatialiteMap map: maps) {
+                                        if (dbFile.equals(map.databasePath)) {
+                                            map.isVisible = true;
+                                        }
+                                    }
                                     GPDialogs.infoDialog(context, okMsg, new Runnable() {
                                         @Override
                                         public void run() {

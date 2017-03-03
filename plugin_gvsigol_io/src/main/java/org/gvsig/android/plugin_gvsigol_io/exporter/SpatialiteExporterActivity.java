@@ -146,19 +146,14 @@ public class SpatialiteExporterActivity extends ListActivity {
         //See the proper way to do it in:
         // https://developer.android.com/training/basics/network-ops/connecting.html#config-changes
         uploadTask = new StringAsyncTask(this) {
+            protected File db;
             protected String doBackgroundWork() {
                 try {
                     String result;
-                    File db = dataListToLoad.get(position);
+                    db = dataListToLoad.get(position);
                     if (finish) {
                         result = WebDataManager.INSTANCE.uploadData(SpatialiteExporterActivity.this, db, url, user, pwd);
                         dataListToLoad.get(position).delete();
-                        List<SpatialiteMap> maps = SpatialiteSourcesManager.INSTANCE.getSpatialiteMaps();
-                        for (SpatialiteMap map: maps) {
-                            if (map.databasePath.equals(db.getPath())) {
-                                SpatialiteSourcesManager.INSTANCE.removeSpatialiteMap(map);
-                            }
-                        }
                     }
                     else {
                         result = WebDataManager.INSTANCE.uploadData(SpatialiteExporterActivity.this, db, url, user, pwd, WebDataManager.UPLOAD_AND_CONTINUE_DATA);
@@ -174,6 +169,19 @@ public class SpatialiteExporterActivity extends ListActivity {
 
             protected void doUiPostWork(String response) {
                 if (ASYNC_OK.equals(response)) {
+                    List<SpatialiteMap> maps = SpatialiteSourcesManager.INSTANCE.getSpatialiteMaps();
+                    // Create a new list to avoid ConcurrentModificationException, as we are removing
+                    // elements from the original list
+                    maps = new ArrayList<SpatialiteMap>(maps);
+                    for (SpatialiteMap map: maps) {
+                        if (map.databasePath.equals(db.getPath())) {
+                            try {
+                                SpatialiteSourcesManager.INSTANCE.removeSpatialiteMap(map);
+                            } catch (Exception e) {
+                                GPLog.error(this, null, e);
+                            }
+                        }
+                    }
                     String message = getResources().getString(eu.geopaparazzi.library.R.string.file_upload_completed_properly);
 
                     GPDialogs.infoDialog(SpatialiteExporterActivity.this, message, new Runnable() {
