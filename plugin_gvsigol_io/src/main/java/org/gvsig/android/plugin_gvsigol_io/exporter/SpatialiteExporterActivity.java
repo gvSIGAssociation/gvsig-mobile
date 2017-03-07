@@ -153,7 +153,8 @@ public class SpatialiteExporterActivity extends ListActivity {
                     db = dataListToLoad.get(position);
                     if (finish) {
                         result = WebDataManager.INSTANCE.uploadData(SpatialiteExporterActivity.this, db, url, user, pwd);
-                        dataListToLoad.get(position).delete();
+                        // For the moment don't remove the DB after uploading, we want to further test the platform
+                        //dataListToLoad.get(position).delete();
                     }
                     else {
                         result = WebDataManager.INSTANCE.uploadData(SpatialiteExporterActivity.this, db, url, user, pwd, WebDataManager.UPLOAD_AND_CONTINUE_DATA);
@@ -169,16 +170,18 @@ public class SpatialiteExporterActivity extends ListActivity {
 
             protected void doUiPostWork(String response) {
                 if (ASYNC_OK.equals(response)) {
-                    List<SpatialiteMap> maps = SpatialiteSourcesManager.INSTANCE.getSpatialiteMaps();
-                    // Create a new list to avoid ConcurrentModificationException, as we are removing
-                    // elements from the original list
-                    maps = new ArrayList<SpatialiteMap>(maps);
-                    for (SpatialiteMap map: maps) {
-                        if (map.databasePath.equals(db.getPath())) {
-                            try {
-                                SpatialiteSourcesManager.INSTANCE.removeSpatialiteMap(map);
-                            } catch (Exception e) {
-                                GPLog.error(this, null, e);
+                    if (finish) {
+                        List<SpatialiteMap> maps = SpatialiteSourcesManager.INSTANCE.getSpatialiteMaps();
+                        // Create a new list to avoid ConcurrentModificationException, as we are removing
+                        // elements from the original list
+                        maps = new ArrayList<SpatialiteMap>(maps);
+                        for (SpatialiteMap map : maps) {
+                            if (map.databasePath.equals(db.getPath())) {
+                                try {
+                                    SpatialiteSourcesManager.INSTANCE.removeSpatialiteMap(map);
+                                } catch (Exception e) {
+                                    GPLog.error(this, null, e);
+                                }
                             }
                         }
                     }
