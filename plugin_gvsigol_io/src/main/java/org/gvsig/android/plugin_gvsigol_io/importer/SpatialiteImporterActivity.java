@@ -50,6 +50,7 @@ import org.gvsig.android.plugin_gvsigol_io.WebDataManager;
 import java.io.File;
 
 import eu.geopaparazzi.core.utilities.Constants;
+import eu.geopaparazzi.library.core.ResourcesManager;
 import eu.geopaparazzi.library.core.maps.SpatialiteMap;
 import eu.geopaparazzi.library.database.GPLog;
 import eu.geopaparazzi.library.util.GPDialogs;
@@ -132,7 +133,7 @@ public class SpatialiteImporterActivity extends ListActivity {
         FloatingActionButton downloadButton = (FloatingActionButton) findViewById(R.id.downloadButton);
         downloadButton.setOnClickListener(new View.OnClickListener() {
             public void onClick(View v) {
-                String defaultName = "spatialite_" + TimeUtilities.INSTANCE.TIMESTAMPFORMATTER_LOCAL.format(new Date()) + ".sqlite";
+                String defaultName = getDefaultName();
 
                 GPDialogs.inputMessageDialog(SpatialiteImporterActivity.this, "Set name for downloaded database", defaultName, new TextRunnable() {
 
@@ -174,14 +175,13 @@ public class SpatialiteImporterActivity extends ListActivity {
                                 SpatialiteImporterActivity context = SpatialiteImporterActivity.this;
                                 if (ASYNC_OK.equals(response)) {
                                     SpatialiteSourcesManager.INSTANCE.addSpatialiteMapFromFile(new File(dbFile));
-                                    String okMsg = getString(R.string.data_successfully_downloaded);
-                                    SpatialiteDatabaseHandler handler = SpatialiteSourcesManager.INSTANCE.getExistingDatabaseHandlerByPath(dbFile);
                                     List<SpatialiteMap> maps = SpatialiteSourcesManager.INSTANCE.getSpatialiteMaps();
                                     for (SpatialiteMap map: maps) {
                                         if (dbFile.equals(map.databasePath)) {
                                             map.isVisible = true;
                                         }
                                     }
+                                    String okMsg = getString(R.string.data_successfully_downloaded);
                                     GPDialogs.infoDialog(context, okMsg, new Runnable() {
                                         @Override
                                         public void run() {
@@ -223,6 +223,55 @@ public class SpatialiteImporterActivity extends ListActivity {
             }
         });
 
+    }
+
+    /**
+     * Returns a human-friendly unique name. If a single layer was selected,
+     * the name will be based on the name of this layer.
+     *
+     * @return
+     */
+    protected String getDefaultName() {
+        File outputDir;
+        try {
+            outputDir = ResourcesManager.getInstance(this).getApplicationSupporterDir();
+        } catch (Exception e) {
+            outputDir = null;
+        }
+        String prefix, timestamp;
+        ArrayList<WebDataLayer> selectedLayers = new ArrayList<WebDataLayer>();
+        for (WebDataLayer layer: dataListToLoad) {
+            if (layer.isSelected) {
+                selectedLayers.add(layer);
+            }
+        }
+        if (selectedLayers.size()==1) {
+            prefix = selectedLayers.get(0).name;
+            // remove workspace
+            if (prefix.contains(":")) {
+                prefix = prefix.split(":", 2)[1];
+            }
+
+            // sanitize name
+            prefix = prefix.replaceAll("[^a-zA-Z0-9]+","");
+        }
+        else {
+            prefix = "spatialite";
+        }
+        if (outputDir==null) {
+            timestamp = TimeUtilities.INSTANCE.TIMESTAMPFORMATTER_LOCAL.format(new Date());
+            return prefix + "_" + timestamp + ".sqlite";
+        }
+        else {
+            timestamp = TimeUtilities.INSTANCE.DATEONLY_FORMATTER.format(new Date()).replace("-", "");
+            String baseName = prefix + "_" + timestamp;
+            File f = new File(outputDir, baseName + ".sqlite");
+            int i = 1;
+            while (f.exists()) {
+                f = new File(outputDir, baseName + "_" + i + ".sqlite");
+            }
+            return f.getName();
+        }
     }
 
 
