@@ -121,38 +121,6 @@ public enum WebDataManager {
         }
     }
 
-
-    /**
-     * Uploads a project folder as zip to the given server via POST.
-     *
-     * @param context the {@link Context} to use.
-     * @param fileToUpload  the file to upload.
-     * @param server  the server to which to upload.
-     * @param user    the username for authentication.
-     * @param passwd  the password for authentication.
-     * @param action  {@link #UPLOAD_DATA} or {@link #UPLOAD_AND_CONTINUE_DATA}
-     * @return the return message.
-     */
-    public String uploadDataOld(Context context, File fileToUpload, String server, String user, String passwd, String action) {
-        try {
-            String loginUrl = addActionPath(server, LOGIN_URL);
-            if (UPLOAD_AND_CONTINUE_DATA.equals(action)) {
-                server = addActionPath(server, UPLOAD_AND_CONTINUE_DATA);
-            }
-            else {
-                server = addActionPath(server, UPLOAD_DATA);
-            }
-            String result = NetworkUtilitiesGvsigol.sendFilePost(context, server, fileToUpload, user, passwd, loginUrl);
-            if (GPLog.LOG) {
-                GPLog.addLogEntry(this, result);
-            }
-            return result;
-        } catch (Exception e) {
-            GPLog.error(this, null, e);
-            return e.getLocalizedMessage();
-        }
-    }
-
     private String addActionPath(String server, String path) {
         if (server.endsWith("/")) {
             return server + path;
@@ -173,9 +141,8 @@ public enum WebDataManager {
     public String downloadData(Context context, String server, String user, String passwd, String postJson, String outputFileName) throws DownloadError {
         String downloadedProjectFileName = "no information available";
         try {
-            ResourcesManager resourcesManager = ResourcesManager.getInstance(context);
-            File sdcardDir = resourcesManager.getSdcardDir();
-            File downloadeddataFile = new File(sdcardDir, outputFileName);
+            File outputDir = ResourcesManager.getInstance(context).getApplicationSupporterDir();
+            File downloadeddataFile = new File(outputDir, outputFileName);
             if (downloadeddataFile.exists()) {
                 String wontOverwrite = context.getString(R.string.the_file_exists_wont_overwrite) + " " + downloadeddataFile.getName();
                 throw new DownloadError(wontOverwrite);
@@ -197,47 +164,6 @@ public enum WebDataManager {
         catch (Exception e) {
             GPLog.error(this, null, e);
             throw new DownloadError(e);
-        }
-    }
-
-
-
-    /**
-     * Downloads a project from the given server via GET.
-     *
-     * @param context the {@link Context} to use.
-     * @param server  the server from which to download.
-     * @param user    the username for authentication.
-     * @param passwd  the password for authentication.
-     * @return the error message or null.
-     */
-    public String downloadDataOld(Context context, String server, String user, String passwd, String postJson, String outputFileName) {
-        String downloadedProjectFileName = "no information available";
-        try {
-            ResourcesManager resourcesManager = ResourcesManager.getInstance(context);
-            File sdcardDir = resourcesManager.getSdcardDir();
-            File downloadeddataFile = new File(sdcardDir, outputFileName);
-            if (downloadeddataFile.exists()) {
-                String wontOverwrite = context.getString(R.string.the_file_exists_wont_overwrite) + " " + downloadeddataFile.getName();
-                return wontOverwrite;
-            }
-            String loginUrl = addActionPath(server, LOGIN_URL);
-            server = addActionPath(server, DOWNLOAD_DATA);
-            NetworkUtilitiesGvsigol.sendPostForFile(context, server, postJson, user, passwd, downloadeddataFile, loginUrl);
-
-            long fileLength = downloadeddataFile.length();
-            if (fileLength == 0) {
-                throw new RuntimeException("Error in downloading file.");
-            }
-
-            return null;
-        } catch (Exception e) {
-            GPLog.error(this, null, e);
-            String message = e.getMessage();
-            if (message.equals(CompressionUtilities.FILE_EXISTS)) {
-                throw new RuntimeException(context.getString(R.string.the_file_exists_wont_overwrite) + " " + downloadedProjectFileName);
-            }
-            return e.getLocalizedMessage();
         }
     }
 
