@@ -269,6 +269,7 @@ public class SpatialiteImporterActivity extends ListActivity {
             int i = 1;
             while (f.exists()) {
                 f = new File(outputDir, baseName + "_" + i + ".sqlite");
+                i++;
             }
             return f.getName();
         }
