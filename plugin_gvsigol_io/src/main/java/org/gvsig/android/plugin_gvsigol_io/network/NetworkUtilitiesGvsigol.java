@@ -51,6 +51,7 @@ import java.util.Map;
 
 import eu.geopaparazzi.library.database.GPLog;
 import eu.geopaparazzi.library.network.NetworkUtilities;
+import eu.geopaparazzi.library.util.FileUtilities;
 
 import static eu.geopaparazzi.library.network.NetworkUtilities.getMessageForCode;
 
@@ -354,11 +355,10 @@ public class NetworkUtilitiesGvsigol {
             setCsrfHeader(manager, conn);
             conn.setDoOutput(true);
             conn.setDoInput(true);
-//            conn.setChunkedStreamingMode(0);
-            conn.setUseCaches(true);
+            //conn.setChunkedStreamingMode(0);
             conn.setRequestProperty("Content-Type", "application/octet-stream");
             conn.setRequestProperty("Content-Length", "" + fileSize);
-            // conn.setRequestProperty("Connection", "Keep-Alive");
+            conn.setFixedLengthStreamingMode((int)fileSize);
 
             conn.connect();
 
@@ -392,10 +392,13 @@ public class NetworkUtilitiesGvsigol {
             if (connResponseStream!=null) {
                 Reader reader = null;
                 try {
+                    int charCount = 0;
+                    int maxChars = 1048576; // Avoid downloading response bodies bigger than 1 MB
                     reader = new BufferedReader(new InputStreamReader(connResponseStream, "UTF-8"));
                     int c = 0;
-                    while ((c = reader.read()) != -1) {
+                    while ((c = reader.read() ) != -1 && charCount<maxChars) {
                         responseBuilder.append((char) c);
+                        charCount++;
                     }
                 } finally {
                     if (reader != null) {
@@ -404,6 +407,8 @@ public class NetworkUtilitiesGvsigol {
                 }
             }
             if (responseCode!=200 && responseCode!=204) {
+                if (GPLog.LOG)
+                    GPLog.addLogEntry(TAG, "Error uploading data. Code " + responseCode);
                 throw new ServerError(responseBuilder.toString(), responseCode);
             }
             return responseBuilder.toString();
