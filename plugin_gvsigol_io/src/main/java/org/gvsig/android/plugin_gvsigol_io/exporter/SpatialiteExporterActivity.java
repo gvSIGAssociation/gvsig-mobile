@@ -217,12 +217,11 @@ public class SpatialiteExporterActivity extends ListActivity {
             message = getResources().getString(R.string.error_uploading_the_data);
         }
         else if (response.startsWith("ERROR_GOL_")) {
-            response = response.substring(10);
             if (response.startsWith("ERROR_GOL_201")) {
                 String[] responseParts = response.split(":", 2);
                 String layerName;
                 if (responseParts.length==2) {
-                    layerName = responseParts[1];
+                    layerName = responseParts[1].trim();
                 }
                 else {
                     layerName = "";
