@@ -355,11 +355,10 @@ public class NetworkUtilitiesGvsigol {
             setCsrfHeader(manager, conn);
             conn.setDoOutput(true);
             conn.setDoInput(true);
-            //conn.setChunkedStreamingMode(0);
+            
             conn.setRequestProperty("Content-Type", "application/octet-stream");
             conn.setRequestProperty("Content-Length", "" + fileSize);
-            conn.setFixedLengthStreamingMode((int)fileSize);
-
+            conn.setFixedLengthStreamingMode(fileSize);
             conn.connect();
 
             wr = new BufferedOutputStream(conn.getOutputStream());
