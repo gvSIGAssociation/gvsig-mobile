@@ -184,6 +184,15 @@ public class SpatialiteExporterActivity extends ListActivity {
                                 }
                             }
                         }
+                        // remove the DB if successfully uploaded
+                        try {
+                            if (db.exists()) {
+                                db.delete();
+                            }
+                        }
+                        catch (Exception e) {
+                            GPLog.error(this, "Error deleting sqlite db", e);
+                        }
                     }
                     String message = getResources().getString(eu.geopaparazzi.library.R.string.file_upload_completed_properly);
 
