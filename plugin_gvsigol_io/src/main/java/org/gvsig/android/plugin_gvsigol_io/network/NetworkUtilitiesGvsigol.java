@@ -355,10 +355,15 @@ public class NetworkUtilitiesGvsigol {
             setCsrfHeader(manager, conn);
             conn.setDoOutput(true);
             conn.setDoInput(true);
-            
+
             conn.setRequestProperty("Content-Type", "application/octet-stream");
             conn.setRequestProperty("Content-Length", "" + fileSize);
-            conn.setFixedLengthStreamingMode(fileSize);
+            if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.KITKAT) {
+                conn.setFixedLengthStreamingMode(fileSize);
+            }
+            else {
+                conn.setFixedLengthStreamingMode((int)fileSize);
+            }
             conn.connect();
 
             wr = new BufferedOutputStream(conn.getOutputStream());
