@@ -1,4 +1,4 @@
-include ':app'
+include ':gvsigmobile'
 include ':geopaparazzi_core'
 project(':geopaparazzi_core').projectDir = new File('../../geopaparazzi-git/geopaparazzi_core/')
 include ':geopaparazzilibrary'
@@ -9,6 +9,8 @@ include ':geopaparazzimapsforge'
 project(':geopaparazzimapsforge').projectDir = new File('../../geopaparazzi-git/geopaparazzimapsforge/')
 include ':geopaparazzispatialitelibrary'
 project(':geopaparazzispatialitelibrary').projectDir = new File('../../geopaparazzi-git/geopaparazzispatialitelibrary/')
+include ':geopaparazzi_acrylicpaint'
+project(':geopaparazzi_acrylicpaint').projectDir = new File('../../geopaparazzi-git/geopaparazzi_acrylicpaint/')
 include ':wms_nww'
 project(':wms_nww').projectDir = new File('../../wms_nww/')
 include ':plugin_gvsigol_io'
