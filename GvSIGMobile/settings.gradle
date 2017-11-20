@@ -3,8 +3,6 @@ include ':geopaparazzi_core'
 project(':geopaparazzi_core').projectDir = new File('../../geopaparazzi-git/geopaparazzi_core/')
 include ':geopaparazzilibrary'
 project(':geopaparazzilibrary').projectDir = new File('../../geopaparazzi-git/geopaparazzilibrary/')
-include ':geopaparazzimarkerslib'
-project(':geopaparazzimarkerslib').projectDir = new File('../../geopaparazzi-git/geopaparazzimarkerslib/')
 include ':geopaparazzimapsforge'
 project(':geopaparazzimapsforge').projectDir = new File('../../geopaparazzi-git/geopaparazzimapsforge/')
 include ':geopaparazzispatialitelibrary'
@@ -15,3 +13,9 @@ include ':wms_nww'
 project(':wms_nww').projectDir = new File('../../wms_nww/')
 include ':plugin_gvsigol_io'
 project(':plugin_gvsigol_io').projectDir = new File('../plugin_gvsigol_io/')
+include ':geopaparazzi_default_import_plugins'
+project(':geopaparazzi_default_import_plugins').projectDir = new File('../../geopaparazzi-git/plugins/geopaparazzi_default_import_plugins/')
+include ':geopaparazzi_default_export_plugins'
+project(':geopaparazzi_default_export_plugins').projectDir = new File('../../geopaparazzi-git/plugins/geopaparazzi_default_export_plugins/')
+include ':geopaparazzi_pdf_export_plugins'
+project(':geopaparazzi_pdf_export_plugins').projectDir = new File('../../geopaparazzi-git/plugins/geopaparazzi_pdf_export_plugins/')
