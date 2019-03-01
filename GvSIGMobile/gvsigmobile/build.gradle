@@ -10,9 +10,7 @@ android {
             //proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
             applicationVariants.all { variant ->
                 variant.outputs.each { output ->
-                    def file = output.outputFile
-                    def fileName = file.name.replace("gvsigmobile-release.apk", "GvsigMobile_" + android.defaultConfig.versionName + ".apk");
-                    output.outputFileName = new File(file.parentFile, fileName)
+                    output.outputFileName = "GvsigMobile_" + android.defaultConfig.versionName + ".apk"
                 }
             }
         }
@@ -53,26 +51,27 @@ android {
 
 
     defaultConfig {
-        applicationId "org.gvsig.gvsigmobile"
+        applicationId project.ext.myApplicationId
+        versionCode project.ext.myVersionCode
+        versionName project.ext.myVersionName
+
         minSdkVersion project.ext.myminSdkVersion
         targetSdkVersion project.ext.mytargetSdkVersion
-        versionCode 3
-        versionName "0.2.1"
         signingConfig signingConfigs.config
         multiDexEnabled true
     }
 }
 
 dependencies {
-    compile fileTree(include: ['*.jar'], dir: 'libs')
-    compile 'com.android.support:appcompat-v7:27.0.1'
-    compile 'com.android.support:design:27.0.1'
-    compile 'com.android.support:preference-v7:27.0.1'
-    compile 'com.android.support:support-v4:27.0.1'
-    testCompile 'junit:junit:4.12'
-    compile project(':geopaparazzi_core')
-    compile project(':plugin_gvsigol_io')
-    implementation project(':geopaparazzi_default_export_plugins')
+    implementation fileTree(include: ['*.jar'], dir: 'libs')
+    testImplementation 'junit:junit:4.12'
+    api 'com.android.support:appcompat-v7:28.0.0'
+    api 'com.android.support:design:28.0.0'
+    api 'com.android.support:preference-v7:28.0.0'
+    api 'com.android.support:support-v4:28.0.0'
+    implementation project(':geopaparazzi_core')
     implementation project(':geopaparazzi_default_import_plugins')
+    implementation project(':geopaparazzi_default_export_plugins')
     implementation project(':geopaparazzi_pdf_export_plugins')
+    implementation project(':plugin_gvsigol_io')
 }
